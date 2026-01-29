@@ -39,7 +39,7 @@ function Dashboard({ user }) {
     let interval;
     if (hasActiveJobs) {
       interval = setInterval(() => {
-        fetchUploadJobs();
+        fetchUploadJobs(true);
         fetchStats();
       }, 3000);
     }
@@ -76,16 +76,16 @@ function Dashboard({ user }) {
     }
   };
 
-  const fetchUploadJobs = async () => {
+  const fetchUploadJobs = async (isPolling = false) => {
     try {
-      setLoading(true);
+      if (!isPolling) setLoading(true); // Only show loader on first load
       const response = await api.get('/dashboard/upload-jobs');
       setUploadJobs(response.data);
     } catch (error) {
       console.error("Error fetching upload jobs:", error);
-      setUploadJobs([]);
+      if (!isPolling) setUploadJobs([]);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   };
 
