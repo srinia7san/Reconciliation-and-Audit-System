@@ -26,6 +26,7 @@ function Dashboard({ user }) {
 
 
   // Smart polling: only refresh if there are active jobs
+  // Smart polling: only refresh if there are active jobs
   useEffect(() => {
     fetchUploadJobs();
     fetchStats();
@@ -362,7 +363,6 @@ function Dashboard({ user }) {
                     <th className="px-4 py-2">Reference</th>
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Matched With (System)</th>
-                    <th className="px-4 py-2">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -412,28 +412,6 @@ function Dashboard({ user }) {
                               <div><span className="font-semibold">Amt:</span> {r.matchedWith.amount}</div>
                             </div>
                           ) : '-'}
-                        </td>
-                        <td className="px-4 py-2 space-x-1">
-                          <button onClick={async () => {
-                            const newTx = window.prompt('Transaction ID', r.transactionId)
-                            const newAmount = window.prompt('Amount', r.amount)
-                            const newRef = window.prompt('Reference', r.referenceNumber)
-                            if (newTx === null && newAmount === null && newRef === null) return
-                            try {
-                              await api.patch(`/records/${r._id}`, { transactionId: newTx, amount: newAmount, referenceNumber: newRef })
-                              viewRecords(r.uploadJobId, 'unmatched')
-                            } catch (e) { console.error(e); alert('Failed to save') }
-                          }} className="px-2 py-1 bg-yellow-400 text-white rounded text-xs">Edit</button>
-                          <button onClick={async () => {
-                            try {
-                              await api.post(`/records/${r._id}/reconcile`)
-                              viewRecords(r.uploadJobId, 'unmatched')
-                            } catch (e) { console.error(e); alert('Reconcile failed') }
-                          }} className="px-2 py-1 bg-blue-600 text-white rounded text-xs">Reconcile</button>
-                          <button
-                            onClick={() => setAuditRecordId(r._id)}
-                            className="px-2 py-1 bg-gray-600 text-white rounded text-xs"
-                          >History</button>
                         </td>
                       </tr>
                     );
