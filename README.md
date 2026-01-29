@@ -1,3 +1,4 @@
+
 # Smart Reconciliation & Audit System
 
 A full-stack MERN application for reconciling transaction data against system records with audit trail functionality.
@@ -150,3 +151,6 @@ Create sample CSV files with these columns:
 ## License
 
 MIT License
+=======
+# Reconciliation-and-Audit-System
+>>>>>>> 55c3f57baf0ff2a463543f305776472b984adf2d
