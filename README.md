@@ -148,9 +148,5 @@ Create sample CSV files with these columns:
 4. Push to the branch
 5. Create a Pull Request
 
-## License
-
-MIT License
-=======
 # Reconciliation-and-Audit-System
 >>>>>>> 55c3f57baf0ff2a463543f305776472b984adf2d
