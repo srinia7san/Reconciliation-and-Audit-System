@@ -9,16 +9,16 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
     try {
         const { email, password, name } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password required" });
         }
-        
+
         let user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({ message: "User already exists" });
         }
-        
+
         const hashedPassword = await bcrypt.hash(password, 10);
         user = new User({
             email,
@@ -27,13 +27,13 @@ router.post("/register", async (req, res) => {
             role: "analyst"
         });
         await user.save();
-        
+
         const token = jwt.sign(
             { userId: user._id, email: user.email, role: user.role },
-            process.env.JWT_SECRET || "your-secret-key",
+            process.env.JWT_SECRET,
             { expiresIn: "24h" }
         );
-        
+
         res.json({
             message: "User registered successfully",
             token,
@@ -53,27 +53,27 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password required" });
         }
-        
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
-        
+
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
-        
+
         const token = jwt.sign(
             { userId: user._id, email: user.email, role: user.role },
-            process.env.JWT_SECRET || "your-secret-key",
+            process.env.JWT_SECRET,
             { expiresIn: "24h" }
         );
-        
+
         res.json({
             token,
             user: {

@@ -10,7 +10,7 @@ import { saveRecordsToDatabase, runReconciliation, updateUploadJobWithResults } 
 
 dotenv.config()
 
-const SLEEP_MS = Number(process.env.WORKER_POLL_MS) || 3000
+const SLEEP_MS = Number(process.env.WORKER_POLL_MS)
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -35,25 +35,25 @@ async function processJob(job) {
     if (columnMapping && Object.keys(columnMapping).length > 0) {
       records = records.map(record => {
         const mappedRecord = {}
-        
+
         // Map transaction ID
         if (columnMapping.transactionId) {
           mappedRecord.transactionId = record[columnMapping.transactionId]
         }
-        
+
         // Map amount
         if (columnMapping.amount) {
           const amountValue = record[columnMapping.amount]
-          mappedRecord.amount = typeof amountValue === 'string' 
-            ? parseFloat(amountValue) 
+          mappedRecord.amount = typeof amountValue === 'string'
+            ? parseFloat(amountValue)
             : amountValue
         }
-        
+
         // Map reference number
         if (columnMapping.referenceNumber) {
           mappedRecord.referenceNumber = record[columnMapping.referenceNumber]
         }
-        
+
         return mappedRecord
       })
     }
@@ -77,17 +77,16 @@ async function processJob(job) {
       console.error('Failed to write audit log', e)
     }
 
-    await fs.unlink(filePath).catch(() => {})
+    await fs.unlink(filePath).catch(() => { })
     console.log(`Processed upload ${uploadJobId}: ${results.summary ? JSON.stringify(results.summary) : 'no summary'}`)
   } catch (err) {
     console.error('Job processing error', err)
     await Upload.findByIdAndUpdate(uploadJobId, { status: 'Failed', processedAt: new Date() })
-    await fs.unlink(filePath).catch(() => {})
+    await fs.unlink(filePath).catch(() => { })
   }
 }
 
-async function runWorker() {
-  await connectDB()
+export async function runWorker() {
   console.log('Mongo worker started, polling for queued uploads...')
 
   while (true) {
@@ -110,8 +109,3 @@ async function runWorker() {
     }
   }
 }
-
-runWorker().catch(err => {
-  console.error('Worker failed to start', err)
-  process.exit(1)
-})
