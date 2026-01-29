@@ -10,7 +10,7 @@ import { saveRecordsToDatabase, runReconciliation, updateUploadJobWithResults } 
 
 dotenv.config()
 
-const SLEEP_MS = Number(process.env.WORKER_POLL_MS)
+const SLEEP_MS = Number(process.env.WORKER_POLL_MS) || 3000
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
