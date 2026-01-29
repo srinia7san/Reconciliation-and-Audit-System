@@ -9,6 +9,8 @@ const uploadJobSchema = new mongoose.Schema({
     },
     fileHash: { type: String, index: true },
     filePath: String,
+    fileBuffer: Buffer,  // Store file data directly in MongoDB
+    fileExtension: String,  // csv, xlsx, xls
     uploadedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"

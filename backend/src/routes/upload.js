@@ -61,27 +61,18 @@ router.post("/", upload.single("file"), authenticateJWT, requireRole('admin', 'a
   }
 
   try {
-    // Create upload job record (status defaults to 'Queued')
+    // Create upload job record with file buffer stored in MongoDB
     uploadJob = new Upload({
       filename: req.file.originalname,
       totalRecords: 0,
       uploadedBy: req.user?.id,
       fileHash,
-      columnMapping
+      columnMapping,
+      fileBuffer: req.file.buffer,  // Store file in MongoDB
+      fileExtension: ext,
+      status: 'Queued'
     })
     await uploadJob.save()
-
-    // ensure uploads folder exists
-    const uploadsDir = path.join(process.cwd(), 'uploads')
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true })
-
-    // save file to disk
-    const filename = `${uploadJob._id}_${Date.now()}.${ext}`
-    const filePath = path.join(uploadsDir, filename)
-    await fs.promises.writeFile(filePath, req.file.buffer)
-
-    // save file path to upload job so worker can pick it up
-    await Upload.findByIdAndUpdate(uploadJob._id, { filePath, status: 'Queued' })
 
     // write audit log for upload acceptance
     try {

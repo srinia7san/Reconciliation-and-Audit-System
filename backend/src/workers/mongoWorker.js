@@ -17,10 +17,16 @@ function sleep(ms) {
 }
 
 async function processJob(job) {
-  const { _id: uploadJobId, filePath, filename, uploadedBy, columnMapping } = job
-  const ext = (path.extname(filePath || filename) || '').replace('.', '').toLowerCase()
+  const { _id: uploadJobId, fileBuffer, fileExtension, filename, uploadedBy, columnMapping } = job
+  const ext = fileExtension || (filename ? filename.split('.').pop().toLowerCase() : 'csv')
+
   try {
-    const buffer = await fs.readFile(filePath)
+    // Use fileBuffer from MongoDB instead of reading from disk
+    const buffer = fileBuffer
+    if (!buffer) {
+      throw new Error('No file buffer found in job')
+    }
+
     let records = []
     if (ext === 'csv') {
       const text = buffer.toString()
@@ -62,6 +68,9 @@ async function processJob(job) {
     const results = await runReconciliation(uploadJobId)
     await updateUploadJobWithResults(uploadJobId, results)
 
+    // Clear the fileBuffer from MongoDB to save space after processing
+    await Upload.findByIdAndUpdate(uploadJobId, { $unset: { fileBuffer: 1 } })
+
     try {
       await AuditLog.create({
         userId: uploadedBy || null,
@@ -77,12 +86,10 @@ async function processJob(job) {
       console.error('Failed to write audit log', e)
     }
 
-    await fs.unlink(filePath).catch(() => { })
     console.log(`Processed upload ${uploadJobId}: ${results.summary ? JSON.stringify(results.summary) : 'no summary'}`)
   } catch (err) {
     console.error('Job processing error', err)
     await Upload.findByIdAndUpdate(uploadJobId, { status: 'Failed', processedAt: new Date() })
-    await fs.unlink(filePath).catch(() => { })
   }
 }
 
