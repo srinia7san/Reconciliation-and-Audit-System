@@ -25,19 +25,29 @@ function Dashboard({ user }) {
   const [auditRecordId, setAuditRecordId] = useState(null);
 
 
+  // Smart polling: only refresh if there are active jobs
   useEffect(() => {
     fetchUploadJobs();
     fetchStats();
     fetchSystemRecordUploads();
 
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(() => {
-      fetchUploadJobs();
-      fetchStats();
-    }, 5000);
+    // Check if we need to poll
+    const hasActiveJobs = uploadJobs.some(job =>
+      job.status === 'Processing' || job.status === 'Queued'
+    );
 
-    return () => clearInterval(interval);
-  }, []);
+    let interval;
+    if (hasActiveJobs) {
+      interval = setInterval(() => {
+        fetchUploadJobs();
+        fetchStats();
+      }, 3000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [uploadJobs.some(job => job.status === 'Processing' || job.status === 'Queued')]);
 
   const fetchSystemRecordUploads = async () => {
     try {
