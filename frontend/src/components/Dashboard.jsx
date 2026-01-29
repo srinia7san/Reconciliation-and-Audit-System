@@ -24,13 +24,7 @@ function Dashboard({ user }) {
   const [showSystemRecordsModal, setShowSystemRecordsModal] = useState(false);
   const [auditRecordId, setAuditRecordId] = useState(null);
 
-  // Filter state
-  const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    status: 'all',
-    uploadedBy: ''
-  });
+
 
   useEffect(() => {
     fetchUploadJobs();
@@ -68,15 +62,7 @@ function Dashboard({ user }) {
   const fetchUploadJobs = async () => {
     try {
       setLoading(true);
-      // Build query params from filters
-      const params = new URLSearchParams();
-      if (filters.startDate) params.append('startDate', filters.startDate);
-      if (filters.endDate) params.append('endDate', filters.endDate);
-      if (filters.status && filters.status !== 'all') params.append('status', filters.status);
-      if (filters.uploadedBy) params.append('uploadedBy', filters.uploadedBy);
-
-      const queryString = params.toString();
-      const response = await api.get(`/dashboard/upload-jobs${queryString ? '?' + queryString : ''}`);
+      const response = await api.get('/dashboard/upload-jobs');
       setUploadJobs(response.data);
     } catch (error) {
       console.error("Error fetching upload jobs:", error);
@@ -86,10 +72,7 @@ function Dashboard({ user }) {
     }
   };
 
-  // Re-fetch when filters change
-  useEffect(() => {
-    fetchUploadJobs();
-  }, [filters]);
+
 
   const fetchStats = async () => {
     try {
@@ -195,61 +178,7 @@ function Dashboard({ user }) {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-            <input
-              type="date"
-              value={filters.startDate}
-              onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-            <input
-              type="date"
-              value={filters.endDate}
-              onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Statuses</option>
-              <option value="Completed">Completed</option>
-              <option value="Processing">Processing</option>
-              <option value="Failed">Failed</option>
-              <option value="Queued">Queued</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Uploaded By (User ID)</label>
-            <input
-              type="text"
-              value={filters.uploadedBy}
-              onChange={(e) => setFilters({ ...filters, uploadedBy: e.target.value })}
-              placeholder="User ID..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <button
-              onClick={() => setFilters({ startDate: '', endDate: '', status: 'all', uploadedBy: '' })}
-              className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
+
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
