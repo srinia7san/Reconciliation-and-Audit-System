@@ -13,9 +13,9 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// app.get("/api/check",(req,res)=>{
-//     res.json({status: "ok"})
-// })
+app.get("/api/check", (req, res) => {
+    res.json({ status: "ok" })
+})
 app.use("/api/upload", uploadRouter)
 app.use("/api/system-records", systemRecordsRouter)
 app.use("/api/dashboard", dashboardRouter)
