@@ -1,0 +1,14 @@
+# Backend dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+
+# Uploaded files (User data)
+uploads/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
