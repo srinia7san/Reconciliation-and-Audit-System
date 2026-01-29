@@ -25,11 +25,18 @@ function Dashboard({ user }) {
   const [auditRecordId, setAuditRecordId] = useState(null);
 
 
-
   useEffect(() => {
     fetchUploadJobs();
     fetchStats();
     fetchSystemRecordUploads();
+
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(() => {
+      fetchUploadJobs();
+      fetchStats();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchSystemRecordUploads = async () => {
